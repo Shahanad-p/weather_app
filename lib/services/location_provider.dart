@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:weather_app/services/location_service.dart';
 
 class LocationProvider extends ChangeNotifier {
-  //ask the permission
-
   Position? _currentPosition;
   Position? get currentPosition => _currentPosition;
+  final LocationService _locationService = LocationService();
 
-  Future findThePosition() async {
+  Placemark? _currentLocationName;
+  Placemark? get currentLocationName => _currentLocationName;
+
+  Future<void> findThePosition() async {
     bool serviceEnable;
     LocationPermission permission;
 
@@ -33,10 +37,10 @@ class LocationProvider extends ChangeNotifier {
     }
     _currentPosition = await Geolocator.getCurrentPosition();
     print(_currentPosition);
+
+    _currentLocationName =
+        await _locationService.getLocationName(_currentPosition);
+    print(_currentLocationName);
     notifyListeners();
   }
-
-  //get the location
-
-  //get the placemark
 }
