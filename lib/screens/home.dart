@@ -13,10 +13,22 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
-    Provider.of<LocationProvider>(context, listen: false).findThePosition();
+    // Provider.of<LocationProvider>(context, listen: false).findThePosition();
 
-    Provider.of<WeatherServiceProvider>(context, listen: false)
-        .fetchWeatherDataByCity('dubai');
+    // Provider.of<WeatherServiceProvider>(context, listen: false)
+    //     .fetchWeatherDataByCity('dubai');
+
+    final findLocation = Provider.of<LocationProvider>(context, listen: false);
+
+    findLocation.findThePosition().then((_) {
+      if (findLocation.currentLocationName != null) {
+        var city = findLocation.currentLocationName!.locality;
+        if (city != null) {
+          Provider.of<WeatherServiceProvider>(context, listen: false)
+              .fetchWeatherDataByCity(city);
+        }
+      }
+    });
     super.initState();
   }
 
@@ -33,8 +45,8 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Stack(
         children: [
-          Consumer<LocationProvider>(
-            builder: (context, value, child) => Container(
+          Consumer2<LocationProvider, WeatherServiceProvider>(
+            builder: (context, location, weatherpro, child) => Container(
               padding: const EdgeInsets.all(20),
               height: size.height,
               width: size.width,
@@ -67,13 +79,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      value.currentLocationName?.locality ??
+                                      location.currentLocationName?.locality ??
                                           'unknown location',
                                       style: const TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
                                       ),
-                                    ),
+                                    ),  
                                     const Text(
                                       'Good Morning',
                                       style: TextStyle(
@@ -116,13 +128,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             image: AssetImage(
                                 'assets/—Pngtree—creative cartoon burger vector material_3177179.png'),
                           ),
-                          const Text(
-                            '25 C',
-                            style: TextStyle(fontSize: 25),
+                          Text(
+                            weatherpro.weather!.main!.temp!.toString(),
+                            style: const TextStyle(fontSize: 25),
                           ),
-                          const Text(
-                            'Sunny',
-                            style: TextStyle(fontSize: 25),
+                          Text(
+                            weatherpro.weather!.weather![0].main.toString(),
+                            style: const TextStyle(fontSize: 25),
                           ),
                           const Text('12:30 PM'),
                           const SizedBox(height: 100),
